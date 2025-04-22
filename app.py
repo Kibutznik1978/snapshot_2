@@ -17,7 +17,7 @@ app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
 
 @dataclass
 class BidItem:
-    bid_position: int
+    bid_position: int  # This represents the seniority number
     employee_id: str
     preferences: List[int]
     employee_name: Optional[str] = None
@@ -231,7 +231,7 @@ def download_csv():
         writer = csv.writer(output)
         
         # Write header
-        writer.writerow(["Bid Position", "Employee ID", "Employee Name", "Awarded Line", "Message"])
+        writer.writerow(["Seniority #", "Employee ID", "Employee Name", "Awarded Line", "Message"])
         
         # Write data
         for result in results:

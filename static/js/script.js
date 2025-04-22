@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <table class="table table-striped table-hover table-sm">
                     <thead class="sticky-top bg-dark">
                         <tr>
-                            <th>Bid #</th>
+                            <th>Seniority #</th>
                             <th>Employee ID</th>
                             <th>Employee Name</th>
                             <th>Awarded Line</th>
@@ -142,11 +142,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const rowClass = isCurrentEmployee ? 'table-primary' : '';
             
             // For the current employee, show the actual seniority number
-            const displayBidPosition = result.bid_position;
+            const displaySeniorityNumber = result.bid_position;
             
             tableHtml += `
                 <tr class="${rowClass}">
-                    <td>${displayBidPosition}</td>
+                    <td>${displaySeniorityNumber}</td>
                     <td>${result.employee_id}</td>
                     <td>${result.employee_name || ''}</td>
                     <td>${result.awarded_line || '-'}</td>
