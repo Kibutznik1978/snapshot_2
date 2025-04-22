@@ -1,0 +1,21 @@
+/* Additional styles beyond Bootstrap if needed */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Custom styling for the bid data textarea */
+#bidData {
+    font-family: monospace;
+    resize: vertical;
+}
+
+/* Animation for loading state */
+@keyframes spinner {
+    to {transform: rotate(360deg);}
+}
+
+/* Ensure table is responsive on smaller screens */
+.table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+}

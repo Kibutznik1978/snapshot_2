@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Bid Line Assignment</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container py-4">
+        <header class="pb-3 mb-4 border-bottom">
+            <h1 class="fw-bold">Employee Bid Line Assignment</h1>
+        </header>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h2 class="card-title mb-3">Enter Bid Data</h2>
+                        <p class="card-text text-secondary mb-3">
+                            Enter each bid on a new line with this format:<br>
+                            <code>[Bid Position] [Employee ID] [Line Preferences separated by spaces]</code><br>
+                            Example: <code>85 557149 12 47 33 18</code>
+                        </p>
+                        <form id="bidForm" class="needs-validation" novalidate>
+                            <div class="mb-3">
+                                <textarea id="bidData" class="form-control" rows="10" placeholder="Enter bid data here..." required></textarea>
+                                <div class="invalid-feedback">
+                                    Please enter valid bid data.
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <span class="spinner-border spinner-border-sm d-none" id="loadingSpinner" role="status" aria-hidden="true"></span>
+                                Process Bids
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="card-title mb-0">Results</h2>
+                            <button type="button" class="btn btn-secondary" id="downloadBtn" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download me-1" viewBox="0 0 16 16">
+                                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                                </svg>
+                                Download CSV
+                            </button>
+                        </div>
+                        <div id="resultsContainer">
+                            <p class="text-center text-secondary py-5">No results to display yet. Submit bid data to see results here.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-danger mt-3 d-none" id="errorAlert" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+            </svg>
+            <span id="errorMessage"></span>
+        </div>
+    </div>
+
+    <form id="downloadForm" method="post" action="/download-csv" class="d-none">
+        <input type="hidden" name="results_data" id="resultsData">
+    </form>
+
+    <script src="/static/js/script.js"></script>
+</body>
+</html>
