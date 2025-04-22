@@ -66,6 +66,9 @@ def extract_current_employee(data: str) -> Tuple[Optional[dict], str]:
     # Extract name (everything before "Sen:")
     name_part = first_line[:sen_match.start()].strip()
     
+    # Generate an employee ID (could be based on name or just "EMP" + seniority)
+    employee_id = f"EMP{seniority}"
+    
     # Next line should contain the preferences
     if len(lines) > 1:
         prefs_line = lines[1].strip()
@@ -80,6 +83,7 @@ def extract_current_employee(data: str) -> Tuple[Optional[dict], str]:
         current_employee = {
             "name": name_part,
             "seniority": seniority,
+            "employee_id": employee_id,
             "preferences": preferences
         }
         
@@ -133,9 +137,9 @@ def parse_bid_data(data: str) -> List[BidItem]:
     # Add the current employee as the last item if present
     if current_employee:
         bid_items.append(BidItem(
-            # Use a very high bid position to ensure they're processed last
-            bid_position=9999999,
-            employee_id=f"CURRENT",
+            # Use the actual seniority from the employee data
+            bid_position=current_employee["seniority"],
+            employee_id=current_employee["employee_id"],
             preferences=current_employee["preferences"],
             employee_name=current_employee["name"]
         ))
