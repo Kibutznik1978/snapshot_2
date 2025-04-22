@@ -66,8 +66,8 @@ def extract_current_employee(data: str) -> Tuple[Optional[dict], str]:
     # Extract name (everything before "Sen:")
     name_part = first_line[:sen_match.start()].strip()
     
-    # Generate an employee ID (could be based on name or just "EMP" + seniority)
-    employee_id = f"EMP{seniority}"
+    # Leave employee ID blank for the current employee
+    employee_id = ""
     
     # Next line should contain the preferences
     if len(lines) > 1:
