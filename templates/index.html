@@ -19,25 +19,15 @@
                     <div class="card-body">
                         <h2 class="card-title mb-3">Enter Bid Data</h2>
                         <p class="card-text text-secondary mb-3">
-                            You can paste data in two formats:
+                            <strong>✂️ How to Use the "Old Snapshot" Tool</strong>
                         </p>
-                        <div class="mb-3">
-                            <h5>Option 1: Standard Table Format</h5>
-                            <p class="text-secondary small mb-2">
-                                Enter each bid on a new line with this format:<br>
-                                <code>[Bid Position] [Employee ID] [Line Preferences separated by spaces]</code><br>
-                                Example: <code>85 557149 12 47 33 18</code>
-                            </p>
-                        </div>
-                        <div class="mb-3">
-                            <h5>Option 2: Current Employee + Table Format</h5>
-                            <p class="text-secondary small mb-2">
-                                Start with current employee info (will be processed last):<br>
-                                <code>EMPLOYEE NAME    Sen: 1146</code><br>
-                                <code>75 70 80 27 67 4 2 6 36 65 77 5 ...</code><br>
-                                Then add the bid table below that (same format as Option 1).
-                            </p>
-                        </div>
+                        <ol class="text-secondary small mb-3">
+                            <li>Go to: Schedule Bid Summary → Detailed Bid Summary</li>
+                            <li>Highlight everything starting from your name at the top of the page.</li>
+                            <li>Copy all the text — from your name and bid numbers down through the entire seniority bid table.</li>
+                            <li>The last line you copy should end with the last number in the last person's bid list.</li>
+                            <li>Paste all the copied text into the box below and click "Process Bids".</li>
+                        </ol>
                         <form id="bidForm" class="needs-validation" novalidate>
                             <div class="mb-3">
                                 <textarea id="bidData" class="form-control" rows="10" placeholder="Enter bid data here..." required></textarea>
