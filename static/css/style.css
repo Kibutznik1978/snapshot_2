@@ -16,47 +16,6 @@
 
 /* Ensure table is responsive on smaller screens */
 .table-responsive {
-    max-height: 350px;
+    max-height: 400px;
     overflow-y: auto;
-}
-
-/* Table responsiveness improvements */
-.table {
-    width: 100%;
-    table-layout: fixed;
-}
-
-/* For small screens, ensure text wraps and tables look good */
-@media (max-width: 767px) {
-    .table th, .table td {
-        font-size: 0.875rem;
-        padding: 0.5rem;
-        word-break: break-word;
-    }
-    
-    /* Make sure long employee IDs don't break layout */
-    .table td:nth-child(2) {
-        word-break: break-all;
-    }
-    
-    /* Ensure the form fits small screens */
-    #bidData {
-        font-size: 0.875rem;
-    }
-    
-    /* Make sure buttons are touch-friendly */
-    .btn {
-        padding: 0.5rem 0.75rem;
-    }
-}
-
-/* Custom utility class for medium screens */
-.fs-md-2 {
-    font-size: 2rem !important;
-}
-
-@media (max-width: 767px) {
-    .fs-md-2 {
-        font-size: 1.5rem !important;
-    }
 }

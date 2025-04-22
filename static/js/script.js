@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Store the results for downloading
     let currentResults = [];
-    let hasCurrentEmployee = false;
 
     // Form submission handler
     bidForm.addEventListener('submit', async (e) => {
@@ -47,13 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Check for errors
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'An error occurred while processing your request.');
+                throw new Error(errorData.detail || 'An error occurred while processing your request.');
             }
             
             // Parse the response
             const data = await response.json();
             currentResults = data.results;
-            hasCurrentEmployee = data.has_current_employee;
             
             // Display the results
             displayResults(currentResults);
@@ -93,62 +91,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to display results in a table
     function displayResults(results) {
         if (!results || results.length === 0) {
-            resultsContainer.innerHTML = '<p class="text-center text-secondary py-4 small">No results to display.</p>';
+            resultsContainer.innerHTML = '<p class="text-center text-secondary py-5">No results to display.</p>';
             return;
         }
         
-        // Find the current employee's result, if any
-        const currentEmployee = results.find(r => r.message && r.message.includes("Current Employee"));
-        
-        // Create a summary of results
-        const totalBids = results.length;
-        const awardedCount = results.filter(r => r.awarded_line).length;
-        
-        // Create table HTML with summary and current employee result at the top
-        let tableHtml = '';
-        
-        // Add current employee summary at top if present
-        if (currentEmployee) {
-            const resultClass = currentEmployee.awarded_line ? 'success' : 'danger';
-            const resultText = currentEmployee.awarded_line ? 
-                `Line ${currentEmployee.awarded_line}` : 
-                'No line available';
-            
-            tableHtml += `
-                <div class="alert alert-info mb-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>Your Line Assignment:</strong>
-                            <span class="badge bg-${resultClass} ms-2">${resultText}</span>
-                        </div>
-                        <div class="small text-secondary">
-                            Employee ID: ${currentEmployee.employee_id}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // Add general stats
-        tableHtml += `
-            <div class="mb-3 small">
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Total Bids: <strong>${totalBids}</strong></span>
-                    <span>Awarded: <strong class="text-success">${awardedCount}</strong></span>
-                </div>
-                <div class="progress" style="height: 8px">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: ${(awardedCount/totalBids*100).toFixed(1)}%" 
-                        aria-valuenow="${awardedCount}" aria-valuemin="0" aria-valuemax="${totalBids}"></div>
-                </div>
-            </div>
+        // Create table HTML
+        let tableHtml = `
             <div class="table-responsive">
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th width="20%">Position</th>
-                            <th width="25%">Employee ID</th>
-                            <th width="20%">Line</th>
-                            <th width="35%">Status</th>
+                            <th>Bid Position</th>
+                            <th>Employee ID</th>
+                            <th>Awarded Line</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -156,29 +112,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Add rows for each result
         results.forEach(result => {
-            const isCurrentEmployee = result.message && result.message.includes("Current Employee");
             const statusClass = result.awarded_line ? 'text-success' : 'text-danger';
             const statusIcon = result.awarded_line 
-                ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-check-circle-fill me-1" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>' 
-                : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-exclamation-circle-fill me-1" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg>';
-            
-            // Format status message
-            let statusMessage = '';
-            if (isCurrentEmployee) {
-                // Show current employee badge
-                statusMessage = result.awarded_line ? 'Awarded' : 'Not assigned';
-                statusMessage += ' <span class="badge bg-info ms-1">Current Employee</span>';
-            } else {
-                statusMessage = result.awarded_line ? 'Awarded' : (result.message || 'Not assigned');
-            }
-            
-            // Add highlight class for current employee
-            const rowClass = isCurrentEmployee ? 'table-info' : '';
-            const bidPosition = result.bid_position === 999999 ? 'Current' : result.bid_position;
+                ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle-fill me-1" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>' 
+                : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle-fill me-1" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg>';
+            const statusMessage = result.awarded_line ? 'Awarded' : (result.message || 'Not assigned');
             
             tableHtml += `
-                <tr class="${rowClass}">
-                    <td>${bidPosition}</td>
+                <tr>
+                    <td>${result.bid_position}</td>
                     <td>${result.employee_id}</td>
                     <td>${result.awarded_line || '-'}</td>
                     <td class="${statusClass}">${statusIcon} ${statusMessage}</td>
