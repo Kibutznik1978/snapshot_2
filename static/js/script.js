@@ -97,12 +97,40 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
+        // Find the current employee's result, if any
+        const currentEmployee = results.find(r => r.message && r.message.includes("Current Employee"));
+        
         // Create a summary of results
         const totalBids = results.length;
         const awardedCount = results.filter(r => r.awarded_line).length;
         
-        // Create table HTML with summary at the top
-        let tableHtml = `
+        // Create table HTML with summary and current employee result at the top
+        let tableHtml = '';
+        
+        // Add current employee summary at top if present
+        if (currentEmployee) {
+            const resultClass = currentEmployee.awarded_line ? 'success' : 'danger';
+            const resultText = currentEmployee.awarded_line ? 
+                `Line ${currentEmployee.awarded_line}` : 
+                'No line available';
+            
+            tableHtml += `
+                <div class="alert alert-info mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Your Line Assignment:</strong>
+                            <span class="badge bg-${resultClass} ms-2">${resultText}</span>
+                        </div>
+                        <div class="small text-secondary">
+                            Employee ID: ${currentEmployee.employee_id}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Add general stats
+        tableHtml += `
             <div class="mb-3 small">
                 <div class="d-flex justify-content-between mb-2">
                     <span>Total Bids: <strong>${totalBids}</strong></span>
