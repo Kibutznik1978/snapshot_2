@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Store the results for downloading
     let currentResults = [];
+    let hasCurrentEmployee = false;
 
     // Form submission handler
     bidForm.addEventListener('submit', async (e) => {
@@ -52,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Parse the response
             const data = await response.json();
             currentResults = data.results;
+            hasCurrentEmployee = data.has_current_employee;
             
             // Display the results
             displayResults(currentResults);
@@ -126,15 +128,29 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Add rows for each result
         results.forEach(result => {
+            const isCurrentEmployee = result.message && result.message.includes("Current Employee");
             const statusClass = result.awarded_line ? 'text-success' : 'text-danger';
             const statusIcon = result.awarded_line 
                 ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-check-circle-fill me-1" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>' 
                 : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-exclamation-circle-fill me-1" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg>';
-            const statusMessage = result.awarded_line ? 'Awarded' : (result.message || 'Not assigned');
+            
+            // Format status message
+            let statusMessage = '';
+            if (isCurrentEmployee) {
+                // Show current employee badge
+                statusMessage = result.awarded_line ? 'Awarded' : 'Not assigned';
+                statusMessage += ' <span class="badge bg-info ms-1">Current Employee</span>';
+            } else {
+                statusMessage = result.awarded_line ? 'Awarded' : (result.message || 'Not assigned');
+            }
+            
+            // Add highlight class for current employee
+            const rowClass = isCurrentEmployee ? 'table-info' : '';
+            const bidPosition = result.bid_position === 999999 ? 'Current' : result.bid_position;
             
             tableHtml += `
-                <tr>
-                    <td>${result.bid_position}</td>
+                <tr class="${rowClass}">
+                    <td>${bidPosition}</td>
                     <td>${result.employee_id}</td>
                     <td>${result.awarded_line || '-'}</td>
                     <td class="${statusClass}">${statusIcon} ${statusMessage}</td>

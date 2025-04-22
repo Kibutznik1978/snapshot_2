@@ -24,6 +24,11 @@
                             <code>[Bid Position] [Employee ID] [Line Preferences separated by spaces]</code><br>
                             Example: <code>85 557149 12 47 33 18</code>
                         </p>
+                        <div class="alert alert-info mb-3 small">
+                            <strong>Special Format:</strong> To include the current employee, add a line at the top:<br>
+                            <code>Employee Name: John Doe, ID: EMP123, Preferences: 101 102 103</code><br>
+                            This employee will be processed last in seniority.
+                        </div>
                         <form id="bidForm" class="needs-validation" novalidate>
                             <div class="mb-3">
                                 <textarea id="bidData" class="form-control" rows="8" placeholder="Enter bid data here..." required></textarea>
