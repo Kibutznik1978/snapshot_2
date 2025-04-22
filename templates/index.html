@@ -9,8 +9,11 @@
 </head>
 <body>
     <div class="container py-4">
-        <header class="pb-3 mb-4 border-bottom">
+        <header class="pb-3 mb-4 border-bottom d-flex justify-content-between align-items-center">
             <h1 class="fw-bold">Old Snapshot 2.0</h1>
+            <div class="text-secondary">
+                <span>Contact: <a href="mailto:giladswerdlow@gmail.com" class="text-info">giladswerdlow@gmail.com</a></span>
+            </div>
         </header>
 
         <div class="row g-4">
@@ -81,12 +84,6 @@
             <span id="errorMessage"></span>
         </div>
     </div>
-
-    <footer class="container py-3 mt-4 border-top">
-        <p class="text-center text-secondary small">
-            For questions or suggestions, contact: <a href="mailto:giladswerdlow@gmail.com">giladswerdlow@gmail.com</a>
-        </p>
-    </footer>
 
     <form id="downloadForm" method="post" action="/download-csv" class="d-none">
         <input type="hidden" name="results_data" id="resultsData">
