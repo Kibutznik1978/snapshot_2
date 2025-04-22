@@ -1,7 +1,8 @@
 import os
 import csv
 import io
-from typing import List, Dict, Optional
+import re
+from typing import List, Dict, Optional, Tuple
 from flask import Flask, request, render_template, jsonify, make_response, redirect, url_for
 from dataclasses import dataclass
 import logging
@@ -19,6 +20,7 @@ class BidItem:
     bid_position: int
     employee_id: str
     preferences: List[int]
+    employee_name: Optional[str] = None
 
 @dataclass
 class BidResult:
@@ -26,20 +28,85 @@ class BidResult:
     employee_id: str
     awarded_line: Optional[int] = None
     message: Optional[str] = None
+    employee_name: Optional[str] = None
     
     def to_dict(self):
         return {
             "bid_position": self.bid_position,
             "employee_id": self.employee_id,
+            "employee_name": self.employee_name,
             "awarded_line": self.awarded_line,
             "message": self.message
         }
 
+def extract_current_employee(data: str) -> Tuple[Optional[dict], str]:
+    """
+    Extract the current employee information from the top of the input and 
+    return the rest of the data for table parsing.
+    
+    Returns a tuple: (current_employee_data, remaining_text)
+    """
+    lines = data.strip().split('\n')
+    
+    # Check if the first line contains a name and seniority
+    if not lines:
+        return None, data
+    
+    # Look for a pattern like "NAME SEN: NUMBER" in the first line
+    first_line = lines[0].strip()
+    sen_match = re.search(r'Sen:\s*(\d+)', first_line, re.IGNORECASE)
+    
+    if not sen_match:
+        # If no seniority info is found, assume it's just regular bid data
+        return None, data
+    
+    # Extract seniority number
+    seniority = int(sen_match.group(1))
+    
+    # Extract name (everything before "Sen:")
+    name_part = first_line[:sen_match.start()].strip()
+    
+    # Next line should contain the preferences
+    if len(lines) > 1:
+        prefs_line = lines[1].strip()
+        try:
+            preferences = [int(p) for p in prefs_line.split()]
+        except ValueError:
+            # If we can't parse the preferences, skip this employee
+            logger.warning(f"Could not parse preferences for current employee: {prefs_line}")
+            return None, data
+        
+        # Create a dictionary with the current employee's information
+        current_employee = {
+            "name": name_part,
+            "seniority": seniority,
+            "preferences": preferences
+        }
+        
+        # Return current employee data and the rest of the text starting from line 3
+        # (or line 2 if there are only 2 lines)
+        remaining_text = '\n'.join(lines[2:] if len(lines) > 2 else "")
+        return current_employee, remaining_text
+    
+    return None, data  # Default fallback
+    
 def parse_bid_data(data: str) -> List[BidItem]:
     """Parse the raw bid data into a structured format."""
+    # First, check for current employee information at the top
+    current_employee, table_data = extract_current_employee(data)
+    
     bid_items = []
     
-    for line_num, line in enumerate(data.strip().split('\n'), 1):
+    # Process the bid table
+    lines = table_data.strip().split('\n')
+    
+    # Skip header line if it exists (Sen ID Bids)
+    start_idx = 0
+    if lines and not lines[0].strip().isdigit() and any(keyword in lines[0].lower() for keyword in ['sen', 'id', 'bid']):
+        start_idx = 1
+    
+    # Process each line in the table
+    for line_num, line in enumerate(lines[start_idx:], start_idx + 1):
         line = line.strip()
         if not line:  # Skip empty lines
             continue
@@ -62,6 +129,16 @@ def parse_bid_data(data: str) -> List[BidItem]:
         except ValueError as e:
             logger.warning(f"Error parsing line {line_num}: {e}")
             continue
+    
+    # Add the current employee as the last item if present
+    if current_employee:
+        bid_items.append(BidItem(
+            # Use a very high bid position to ensure they're processed last
+            bid_position=9999999,
+            employee_id=f"CURRENT",
+            preferences=current_employee["preferences"],
+            employee_name=current_employee["name"]
+        ))
             
     return bid_items
 
@@ -77,7 +154,8 @@ def assign_lines(bid_items: List[BidItem]) -> List[BidResult]:
     for bid in sorted_bids:
         result = BidResult(
             bid_position=bid.bid_position,
-            employee_id=bid.employee_id
+            employee_id=bid.employee_id,
+            employee_name=bid.employee_name
         )
         
         # Try to assign a line from preferences
@@ -133,13 +211,14 @@ def download_csv():
         writer = csv.writer(output)
         
         # Write header
-        writer.writerow(["Bid Position", "Employee ID", "Awarded Line", "Message"])
+        writer.writerow(["Bid Position", "Employee ID", "Employee Name", "Awarded Line", "Message"])
         
         # Write data
         for result in results:
             writer.writerow([
                 result.get("bid_position", ""),
                 result.get("employee_id", ""),
+                result.get("employee_name", ""),
                 result.get("awarded_line", ""),
                 result.get("message", "")
             ])
