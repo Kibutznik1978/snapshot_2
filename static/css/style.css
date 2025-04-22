@@ -14,8 +14,20 @@
     to {transform: rotate(360deg);}
 }
 
-/* Ensure table is responsive on smaller screens */
+/* Ensure table is responsive on smaller screens with sticky header */
 .table-responsive {
     max-height: 400px;
     overflow-y: auto;
+}
+
+/* Sticky header styles */
+.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* Add a slight shadow to the header for visual separation when scrolling */
+thead.sticky-top th {
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
 }
