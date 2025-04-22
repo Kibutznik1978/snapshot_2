@@ -189,10 +189,17 @@ def process_bids():
     try:
         # Parse the bid data
         bid_data = request.form.get("bid_data", "")
+        
+        if not bid_data.strip():
+            return jsonify({"error": "Please enter bid data to process"}), 400
+            
         bid_items = parse_bid_data(bid_data)
         
         if not bid_items:
-            return jsonify({"error": "No valid bid data found"}), 400
+            return jsonify({
+                "error": "Could not process the bid data. Please check your input format against the example provided. " +
+                         "Make sure your data starts with your name and seniority number, followed by your bid preferences."
+            }), 400
             
         # Assign lines based on seniority and preferences
         results = assign_lines(bid_items)
@@ -200,7 +207,16 @@ def process_bids():
         return jsonify({"results": [result.to_dict() for result in results]})
     except Exception as e:
         logger.error(f"Error processing bids: {e}")
-        return jsonify({"error": str(e)}), 500
+        error_message = str(e)
+        user_message = "An error occurred while processing your bid data. "
+        
+        if "invalid literal for int()" in error_message:
+            user_message += "There appears to be non-numeric data where numbers are expected. " + \
+                           "Please check that the seniority numbers and bid preferences are all valid numbers."
+        else:
+            user_message += "Please make sure your data is in the correct format as shown in the example."
+            
+        return jsonify({"error": user_message}), 500
 
 @app.route("/download-csv", methods=["POST"])
 def download_csv():

@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bidForm = document.getElementById('bidForm');
     const bidData = document.getElementById('bidData');
     const submitBtn = document.getElementById('submitBtn');
+    const resetBtn = document.getElementById('resetBtn');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const resultsContainer = document.getElementById('resultsContainer');
     const downloadBtn = document.getElementById('downloadBtn');
@@ -46,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Check for errors
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.detail || 'An error occurred while processing your request.');
+                throw new Error(errorData.error || errorData.detail || 'An error occurred while processing your request.');
             }
             
             // Parse the response
@@ -86,6 +87,23 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Submit the download form
         downloadForm.submit();
+    });
+    
+    // Reset button handler
+    resetBtn.addEventListener('click', () => {
+        // Clear the form
+        bidForm.reset();
+        bidForm.classList.remove('was-validated');
+        
+        // Clear results
+        resultsContainer.innerHTML = '<p class="text-center text-secondary py-5">No results to display yet. Submit bid data to see results here.</p>';
+        currentResults = [];
+        
+        // Disable download button
+        downloadBtn.disabled = true;
+        
+        // Hide error message
+        errorAlert.classList.add('d-none');
     });
 
     // Function to display results in a table
