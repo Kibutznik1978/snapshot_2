@@ -322,12 +322,17 @@ def download_csv():
         
         # Write data
         for result in results:
+            # Format choice position for CSV
+            choice_position = result.get("choice_position", "")
+            if not choice_position and result.get("message") and "No preferred lines available" in result.get("message"):
+                choice_position = "Insufficient Bids"
+                
             writer.writerow([
                 result.get("bid_position", ""),
                 result.get("employee_id", ""),
                 result.get("employee_name", ""),
                 result.get("awarded_line", ""),
-                result.get("choice_position", ""),
+                choice_position,
                 result.get("message", "")
             ])
             

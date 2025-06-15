@@ -156,6 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let choiceDisplay = '-';
             if (result.choice_position) {
                 choiceDisplay = result.choice_position;
+            } else if (result.message && result.message.includes("No preferred lines available")) {
+                choiceDisplay = 'Insufficient Bids';
             }
             
             tableHtml += `
