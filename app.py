@@ -136,6 +136,10 @@ def parse_bid_data(data: str) -> List[BidItem]:
     first_line = lines[0].strip() if lines else ""
     is_old_table_format = ("seniority" in first_line.lower() or "senority" in first_line.lower()) and ("crew" in first_line.lower() or "id" in first_line.lower())
     
+    logger.info(f"First line: '{first_line}'")
+    logger.info(f"Is old table format: {is_old_table_format}")
+    logger.info(f"Total lines: {len(lines)}")
+    
     if is_old_table_format:
         # Handle old table format (Seniority, Crew Id, Bids)
         # Skip the header line
