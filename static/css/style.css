@@ -1,12 +1,32 @@
-/* Additional styles beyond Bootstrap if needed */
+/* Mobile-first responsive design */
 .card {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border-radius: 0.75rem;
 }
 
-/* Custom styling for the bid data textarea */
+/* Touch-friendly bid data textarea */
 #bidData {
     font-family: monospace;
     resize: vertical;
+    min-height: 200px;
+    font-size: 14px;
+    line-height: 1.4;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+/* Touch-friendly buttons */
+.btn {
+    min-height: 44px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+    transform: translateY(1px);
 }
 
 /* Animation for loading state */
@@ -14,10 +34,12 @@
     to {transform: rotate(360deg);}
 }
 
-/* Ensure table is responsive on smaller screens with sticky header */
+/* Mobile-responsive table */
 .table-responsive {
-    max-height: 400px;
+    max-height: 60vh;
     overflow-y: auto;
+    border-radius: 0.5rem;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Sticky header styles */
@@ -27,7 +49,171 @@
     z-index: 1;
 }
 
-/* Add a slight shadow to the header for visual separation when scrolling */
 thead.sticky-top th {
-    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    h1 {
+        font-size: 1.75rem;
+        text-align: center;
+    }
+    
+    h2.card-title {
+        font-size: 1.25rem;
+        text-align: center;
+    }
+    
+    /* Stack columns on mobile */
+    .row.g-4 > .col-md-6 {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Larger text areas on mobile */
+    #bidData {
+        min-height: 250px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Button adjustments for mobile */
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+        min-height: 48px;
+    }
+    
+    .d-flex.gap-2 {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+    
+    /* Mobile table styling */
+    .table {
+        font-size: 0.875rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem 0.25rem;
+        vertical-align: middle;
+    }
+    
+    /* Horizontal scroll for wide tables */
+    .table-responsive {
+        max-height: 50vh;
+    }
+    
+    /* Contact footer adjustments */
+    .mt-4.pt-2.border-top p {
+        font-size: 0.875rem;
+    }
+    
+    /* Alert adjustments */
+    .alert {
+        font-size: 0.875rem;
+        padding: 0.75rem;
+    }
+    
+    /* Instructions adjustments */
+    .text-secondary.small {
+        font-size: 0.875rem !important;
+    }
+    
+    ol li {
+        margin-bottom: 0.25rem;
+    }
+}
+
+/* Tablet-specific adjustments */
+@media (min-width: 768px) and (max-width: 991px) {
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    #bidData {
+        min-height: 220px;
+    }
+    
+    .btn {
+        min-height: 46px;
+    }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+    
+    .table-responsive {
+        max-height: 500px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Increase touch targets */
+    .btn {
+        min-height: 48px;
+        padding: 1rem 1.5rem;
+    }
+    
+    /* Remove hover effects on touch devices */
+    .btn:hover {
+        transform: none;
+    }
+    
+    /* Better spacing for touch */
+    .form-control {
+        padding: 0.75rem;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Improve tap targets for links */
+    a {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .card {
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .btn:active {
+        transform: none;
+    }
+    
+    @keyframes spinner {
+        to {transform: none;}
+    }
+}
+
+/* Dark mode support enhancement */
+@media (prefers-color-scheme: dark) {
+    .table-responsive {
+        border: 1px solid var(--bs-border-color);
+    }
+    
+    .card {
+        border: 1px solid var(--bs-border-color);
+    }
 }

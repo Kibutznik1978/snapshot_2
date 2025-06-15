@@ -14,6 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Store the results for downloading
     let currentResults = [];
+    
+    // Mobile/touch device detection
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    const isMobile = window.innerWidth <= 768;
+    
+    // Initialize mobile optimizations
+    initializeMobileOptimizations();
 
     // Form submission handler
     bidForm.addEventListener('submit', async (e) => {
@@ -164,5 +171,151 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update the results container
         resultsContainer.innerHTML = tableHtml;
+        
+        // Apply mobile optimizations to the new table if needed
+        if (isMobile) {
+            optimizeTableForMobile();
+        }
     }
+    
+    // Mobile optimization functions
+    function initializeMobileOptimizations() {
+        // Auto-resize textarea on mobile
+        if (isMobile) {
+            bidData.addEventListener('focus', () => {
+                setTimeout(() => {
+                    bidData.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            });
+        }
+        
+        // Add touch feedback for buttons
+        if (isTouchDevice) {
+            [submitBtn, resetBtn, downloadBtn].forEach(btn => {
+                if (btn) {
+                    btn.addEventListener('touchstart', function() {
+                        this.style.transform = 'scale(0.95)';
+                    }, { passive: true });
+                    
+                    btn.addEventListener('touchend', function() {
+                        setTimeout(() => {
+                            this.style.transform = '';
+                        }, 100);
+                    }, { passive: true });
+                }
+            });
+        }
+        
+        // Optimize form validation for mobile
+        bidData.addEventListener('blur', () => {
+            if (bidData.value.trim().length > 0) {
+                bidData.setCustomValidity('');
+            }
+        });
+        
+        // Handle orientation changes
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                adjustLayoutForOrientation();
+            }, 100);
+        });
+        
+        // Handle window resize for responsive behavior
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                handleWindowResize();
+            }, 250);
+        });
+    }
+    
+    function optimizeTableForMobile() {
+        const tableResponsive = resultsContainer.querySelector('.table-responsive');
+        if (tableResponsive && isMobile) {
+            // Add horizontal scroll hint for mobile
+            tableResponsive.style.position = 'relative';
+            
+            // Add scroll indicators if content overflows
+            const table = tableResponsive.querySelector('table');
+            if (table && table.scrollWidth > tableResponsive.clientWidth) {
+                tableResponsive.style.background = 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1) 100%)';
+            }
+        }
+    }
+    
+    function adjustLayoutForOrientation() {
+        // Adjust table height based on orientation
+        const tableResponsive = resultsContainer.querySelector('.table-responsive');
+        if (tableResponsive) {
+            const isLandscape = window.innerHeight < window.innerWidth;
+            if (isMobile) {
+                tableResponsive.style.maxHeight = isLandscape ? '40vh' : '50vh';
+            }
+        }
+    }
+    
+    function handleWindowResize() {
+        const newIsMobile = window.innerWidth <= 768;
+        
+        // Re-optimize table if switching to/from mobile
+        if (newIsMobile !== isMobile && currentResults.length > 0) {
+            displayResults(currentResults);
+        }
+        
+        // Update mobile status
+        window.isMobile = newIsMobile;
+    }
+    
+    // Enhanced error handling for mobile
+    function showMobileOptimizedError(message) {
+        errorMessage.textContent = message;
+        errorAlert.classList.remove('d-none');
+        
+        // Scroll to error on mobile
+        if (isMobile) {
+            errorAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+    
+    // Prevent zoom on double-tap for iOS Safari
+    if (isTouchDevice) {
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    }
+    
+    // Add keyboard support for mobile users
+    bidData.addEventListener('keydown', (e) => {
+        // Allow Ctrl+A, Ctrl+V, Ctrl+C on mobile keyboards
+        if (e.ctrlKey || e.metaKey) {
+            if (['a', 'v', 'c', 'x', 'z'].includes(e.key.toLowerCase())) {
+                // Let these through
+                return;
+            }
+        }
+    });
+    
+    // Smooth scrolling for mobile navigation
+    function scrollToResults() {
+        if (isMobile && currentResults.length > 0) {
+            resultsContainer.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+            });
+        }
+    }
+    
+    // Update the form submission to include mobile scroll
+    const originalDisplayResults = displayResults;
+    displayResults = function(results) {
+        originalDisplayResults(results);
+        setTimeout(scrollToResults, 100);
+    };
 });
