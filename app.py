@@ -132,12 +132,46 @@ def parse_bid_data(data: str) -> List[BidItem]:
     lines = data.strip().split('\n')
     bid_items = []
     
-    # Check if this is the old format (starts with "NAME Sen: NUMBER")
+    # Check if this is the old table format (header with "Seniority" or "Senority")
     first_line = lines[0].strip() if lines else ""
-    is_old_format = re.search(r'Sen:\s*(\d+)', first_line, re.IGNORECASE) is not None
+    is_old_table_format = ("seniority" in first_line.lower() or "senority" in first_line.lower()) and ("crew" in first_line.lower() or "id" in first_line.lower())
     
-    if is_old_format:
-        # Handle old format
+    # Check if this is the very old format (starts with "NAME Sen: NUMBER")
+    is_very_old_format = re.search(r'Sen:\s*(\d+)', first_line, re.IGNORECASE) is not None
+    
+    if is_old_table_format:
+        # Handle old table format (Seniority, Crew Id, Bids)
+        # Skip the header line
+        for line_num, line in enumerate(lines[1:], 2):
+            line = line.strip()
+            if not line:  # Skip empty lines
+                continue
+                
+            parts = line.split('\t') if '\t' in line else line.split()
+            if len(parts) < 3:
+                logger.warning(f"Line {line_num} has insufficient data: {line}")
+                continue
+                
+            try:
+                seniority = int(parts[0])
+                employee_id = parts[1]
+                preferences = []
+                
+                # Parse bid numbers from remaining parts
+                bid_text = ' '.join(parts[2:])
+                preferences = [int(p) for p in bid_text.split() if p.isdigit()]
+                
+                bid_items.append(BidItem(
+                    bid_position=seniority,
+                    employee_id=employee_id,
+                    preferences=preferences
+                ))
+            except ValueError as e:
+                logger.warning(f"Error parsing line {line_num}: {e}")
+                continue
+    
+    elif is_very_old_format:
+        # Handle very old format with "NAME Sen: NUMBER"
         current_employee, table_data = extract_current_employee(data)
         
         # Process the bid table
