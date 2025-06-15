@@ -155,10 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Format choice position display
             let choiceDisplay = '-';
             if (result.choice_position) {
-                const suffix = result.choice_position === 1 ? 'st' : 
-                             result.choice_position === 2 ? 'nd' : 
-                             result.choice_position === 3 ? 'rd' : 'th';
-                choiceDisplay = `${result.choice_position}${suffix} choice`;
+                choiceDisplay = result.choice_position;
             }
             
             tableHtml += `

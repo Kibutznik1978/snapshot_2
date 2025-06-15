@@ -322,20 +322,12 @@ def download_csv():
         
         # Write data
         for result in results:
-            # Format choice position for CSV
-            choice_position = result.get("choice_position", "")
-            if choice_position:
-                suffix = "st" if choice_position == 1 else "nd" if choice_position == 2 else "rd" if choice_position == 3 else "th"
-                choice_display = f"{choice_position}{suffix} choice"
-            else:
-                choice_display = ""
-                
             writer.writerow([
                 result.get("bid_position", ""),
                 result.get("employee_id", ""),
                 result.get("employee_name", ""),
                 result.get("awarded_line", ""),
-                choice_display,
+                result.get("choice_position", ""),
                 result.get("message", "")
             ])
             
