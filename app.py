@@ -27,6 +27,7 @@ class BidResult:
     bid_position: int
     employee_id: str
     awarded_line: Optional[int] = None
+    choice_position: Optional[int] = None  # 1st choice, 2nd choice, etc.
     message: Optional[str] = None
     employee_name: Optional[str] = None
     
@@ -36,6 +37,7 @@ class BidResult:
             "employee_id": self.employee_id,
             "employee_name": self.employee_name,
             "awarded_line": self.awarded_line,
+            "choice_position": self.choice_position,
             "message": self.message
         }
 
@@ -247,12 +249,12 @@ def assign_lines(bid_items: List[BidItem]) -> List[BidResult]:
         
         # Try to assign a line from preferences
         assigned = False
-        for preference in bid.preferences:
+        for choice_idx, preference in enumerate(bid.preferences):
             if preference not in assigned_lines:
                 assigned_lines.add(preference)
                 result.awarded_line = preference
+                result.choice_position = choice_idx + 1  # 1st choice, 2nd choice, etc.
                 assigned = True
-
                 break
                 
         if not assigned:
@@ -316,15 +318,24 @@ def download_csv():
         writer = csv.writer(output)
         
         # Write header
-        writer.writerow(["Seniority #", "Employee ID", "Employee Name", "Awarded Line", "Message"])
+        writer.writerow(["Seniority #", "Employee ID", "Employee Name", "Awarded Line", "Choice Position", "Message"])
         
         # Write data
         for result in results:
+            # Format choice position for CSV
+            choice_position = result.get("choice_position", "")
+            if choice_position:
+                suffix = "st" if choice_position == 1 else "nd" if choice_position == 2 else "rd" if choice_position == 3 else "th"
+                choice_display = f"{choice_position}{suffix} choice"
+            else:
+                choice_display = ""
+                
             writer.writerow([
                 result.get("bid_position", ""),
                 result.get("employee_id", ""),
                 result.get("employee_name", ""),
                 result.get("awarded_line", ""),
+                choice_display,
                 result.get("message", "")
             ])
             

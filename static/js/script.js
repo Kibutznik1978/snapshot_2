@@ -130,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <th>Employee ID</th>
                             <th>Employee Name</th>
                             <th>Awarded Line</th>
+                            <th>Choice Position</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -151,12 +152,22 @@ document.addEventListener('DOMContentLoaded', () => {
             // For the current employee, show the actual seniority number
             const displaySeniorityNumber = result.bid_position;
             
+            // Format choice position display
+            let choiceDisplay = '-';
+            if (result.choice_position) {
+                const suffix = result.choice_position === 1 ? 'st' : 
+                             result.choice_position === 2 ? 'nd' : 
+                             result.choice_position === 3 ? 'rd' : 'th';
+                choiceDisplay = `${result.choice_position}${suffix} choice`;
+            }
+            
             tableHtml += `
                 <tr class="${rowClass}">
                     <td>${displaySeniorityNumber}</td>
                     <td>${result.employee_id}</td>
                     <td>${result.employee_name || ''}</td>
                     <td>${result.awarded_line || '-'}</td>
+                    <td class="text-info fw-bold">${choiceDisplay}</td>
                     <td class="${statusClass}">${statusIcon} ${statusMessage}</td>
                 </tr>
             `;
