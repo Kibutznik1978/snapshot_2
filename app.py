@@ -214,6 +214,7 @@ def parse_bid_data(data: str) -> List[BidItem]:
                     
                     try:
                         preferences = [int(p) for p in all_bid_numbers.split() if p.isdigit()]
+                        logger.info(f"Raw bid numbers: '{all_bid_numbers}'")
                         logger.info(f"Adding employee: {name}, seniority: {seniority}, preferences: {preferences[:5]}...")
                         bid_items.append(BidItem(
                             bid_position=seniority,
