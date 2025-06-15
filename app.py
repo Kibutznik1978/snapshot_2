@@ -41,109 +41,202 @@ class BidResult:
 
 def extract_current_employee(data: str) -> Tuple[Optional[dict], str]:
     """
-    Extract the current employee information from the top of the input and 
-    return the rest of the data for table parsing.
+    Extract the current employee information and return the rest of the data for table parsing.
+    In the new format, the current employee is the last entry.
     
     Returns a tuple: (current_employee_data, remaining_text)
     """
     lines = data.strip().split('\n')
     
-    # Check if the first line contains a name and seniority
     if not lines:
         return None, data
     
-    # Look for a pattern like "NAME SEN: NUMBER" in the first line
+    # Check for old format first: "NAME SEN: NUMBER"
     first_line = lines[0].strip()
     sen_match = re.search(r'Sen:\s*(\d+)', first_line, re.IGNORECASE)
     
-    if not sen_match:
-        # If no seniority info is found, assume it's just regular bid data
-        return None, data
-    
-    # Extract seniority number
-    seniority = int(sen_match.group(1))
-    
-    # Extract name (everything before "Sen:")
-    name_part = first_line[:sen_match.start()].strip()
-    
-    # Leave employee ID blank for the current employee
-    employee_id = ""
-    
-    # Next line should contain the preferences
-    if len(lines) > 1:
-        prefs_line = lines[1].strip()
-        try:
-            preferences = [int(p) for p in prefs_line.split()]
-        except ValueError:
-            # If we can't parse the preferences, skip this employee
-            logger.warning(f"Could not parse preferences for current employee: {prefs_line}")
-            return None, data
+    if sen_match:
+        # Old format processing
+        seniority = int(sen_match.group(1))
+        name_part = first_line[:sen_match.start()].strip()
+        employee_id = ""
         
-        # Create a dictionary with the current employee's information
-        current_employee = {
-            "name": name_part,
-            "seniority": seniority,
-            "employee_id": employee_id,
-            "preferences": preferences
-        }
-        
-        # Return current employee data and the rest of the text starting from line 3
-        # (or line 2 if there are only 2 lines)
-        remaining_text = '\n'.join(lines[2:] if len(lines) > 2 else "")
-        return current_employee, remaining_text
+        if len(lines) > 1:
+            prefs_line = lines[1].strip()
+            try:
+                preferences = [int(p) for p in prefs_line.split()]
+            except ValueError:
+                logger.warning(f"Could not parse preferences for current employee: {prefs_line}")
+                return None, data
+            
+            current_employee = {
+                "name": name_part,
+                "seniority": seniority,
+                "employee_id": employee_id,
+                "preferences": preferences
+            }
+            
+            remaining_text = '\n'.join(lines[2:] if len(lines) > 2 else "")
+            return current_employee, remaining_text
     
-    return None, data  # Default fallback
+    # New format: current employee is at the bottom, find the last valid employee entry
+    # Look for lines that match the pattern: NAME ID# SEN BASE EQP STA BID_NUMBERS
+    employee_lines = []
+    current_employee_data = None
+    
+    for i, line in enumerate(lines):
+        line = line.strip()
+        if not line or "ONLY PILOTS" in line or "NAME" in line and "ID#" in line:
+            continue
+            
+        # Check if this line starts a new employee entry (either no indentation or specific pattern)
+        if not line.startswith("      ") and re.match(r'^[A-Z]', line):
+            # This could be an employee line
+            match = re.match(r'^([A-Z\s,]+?)\s+(\d{7})\s+(\d+)\s+([A-Z]{3})\s+(\d{3})\s+([A-Z]{3})\s+([\d\s]+)', line)
+            if match:
+                name = match.group(1).strip()
+                employee_id = match.group(2)
+                seniority = int(match.group(3))
+                bid_numbers_str = match.group(7)
+                
+                # Collect all bid numbers for this employee (including continuation lines)
+                all_bid_numbers = bid_numbers_str
+                j = i + 1
+                while j < len(lines) and lines[j].strip().startswith("      ") and not re.match(r'^[A-Z]', lines[j].strip()):
+                    continuation_line = lines[j].strip()
+                    # Extract numbers from continuation line
+                    numbers_only = re.findall(r'\d+', continuation_line)
+                    if numbers_only:
+                        all_bid_numbers += " " + " ".join(numbers_only)
+                    j += 1
+                
+                try:
+                    preferences = [int(p) for p in all_bid_numbers.split() if p.isdigit()]
+                    current_employee_data = {
+                        "name": name,
+                        "seniority": seniority,
+                        "employee_id": employee_id,
+                        "preferences": preferences
+                    }
+                except ValueError:
+                    continue
+    
+    if current_employee_data:
+        # Return the current employee (last one found) and all the data for processing
+        return current_employee_data, data
+    
+    return None, data
     
 def parse_bid_data(data: str) -> List[BidItem]:
     """Parse the raw bid data into a structured format."""
-    # First, check for current employee information at the top
-    current_employee, table_data = extract_current_employee(data)
-    
+    lines = data.strip().split('\n')
     bid_items = []
     
-    # Process the bid table
-    lines = table_data.strip().split('\n')
+    # Check if this is the old format (starts with "NAME Sen: NUMBER")
+    first_line = lines[0].strip() if lines else ""
+    is_old_format = re.search(r'Sen:\s*(\d+)', first_line, re.IGNORECASE) is not None
     
-    # Skip header line if it exists (Sen ID Bids)
-    start_idx = 0
-    if lines and not lines[0].strip().isdigit() and any(keyword in lines[0].lower() for keyword in ['sen', 'id', 'bid']):
-        start_idx = 1
-    
-    # Process each line in the table
-    for line_num, line in enumerate(lines[start_idx:], start_idx + 1):
-        line = line.strip()
-        if not line:  # Skip empty lines
-            continue
-            
-        parts = line.split()
-        if len(parts) < 3:
-            logger.warning(f"Line {line_num} has insufficient data: {line}")
-            continue
-            
-        try:
-            bid_position = int(parts[0])
-            employee_id = parts[1]
-            preferences = [int(p) for p in parts[2:]]
-            
+    if is_old_format:
+        # Handle old format
+        current_employee, table_data = extract_current_employee(data)
+        
+        # Process the bid table
+        table_lines = table_data.strip().split('\n')
+        
+        # Skip header line if it exists (Sen ID Bids)
+        start_idx = 0
+        if table_lines and not table_lines[0].strip().isdigit() and any(keyword in table_lines[0].lower() for keyword in ['sen', 'id', 'bid']):
+            start_idx = 1
+        
+        # Process each line in the table
+        for line_num, line in enumerate(table_lines[start_idx:], start_idx + 1):
+            line = line.strip()
+            if not line:  # Skip empty lines
+                continue
+                
+            parts = line.split()
+            if len(parts) < 3:
+                logger.warning(f"Line {line_num} has insufficient data: {line}")
+                continue
+                
+            try:
+                bid_position = int(parts[0])
+                employee_id = parts[1]
+                preferences = [int(p) for p in parts[2:]]
+                
+                bid_items.append(BidItem(
+                    bid_position=bid_position,
+                    employee_id=employee_id,
+                    preferences=preferences
+                ))
+            except ValueError as e:
+                logger.warning(f"Error parsing line {line_num}: {e}")
+                continue
+        
+        # Add the current employee as the last item if present
+        if current_employee:
             bid_items.append(BidItem(
-                bid_position=bid_position,
-                employee_id=employee_id,
-                preferences=preferences
+                bid_position=current_employee["seniority"],
+                employee_id=current_employee["employee_id"],
+                preferences=current_employee["preferences"],
+                employee_name=current_employee["name"]
             ))
-        except ValueError as e:
-            logger.warning(f"Error parsing line {line_num}: {e}")
-            continue
     
-    # Add the current employee as the last item if present
-    if current_employee:
-        bid_items.append(BidItem(
-            # Use the actual seniority from the employee data
-            bid_position=current_employee["seniority"],
-            employee_id=current_employee["employee_id"],
-            preferences=current_employee["preferences"],
-            employee_name=current_employee["name"]
-        ))
+    else:
+        # Handle new format - parse all employees from the structured data
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
             
+            # Skip empty lines and header lines
+            if not line or "ONLY PILOTS" in line or ("NAME" in line and "ID#" in line and "SEN" in line):
+                i += 1
+                continue
+            
+            # Check if this line is an employee entry
+            # Pattern: NAME ID# SEN BASE EQP STA BID_NUMBERS
+            if not line.startswith("      ") and re.match(r'^[A-Z]', line):
+                match = re.match(r'^([A-Z\s,]+?)\s+(\d{7})\s+(\d+)\s+([A-Z]{3})\s+(\d{3})\s+([A-Z]{3})\s+([\d\s]+)', line)
+                if match:
+                    name = match.group(1).strip()
+                    employee_id = match.group(2)
+                    seniority = int(match.group(3))
+                    bid_numbers_str = match.group(7)
+                    
+                    # Collect all bid numbers for this employee (including continuation lines)
+                    all_bid_numbers = bid_numbers_str
+                    j = i + 1
+                    
+                    # Look for continuation lines (indented lines with numbers)
+                    while j < len(lines):
+                        next_line = lines[j].strip()
+                        if next_line.startswith("      ") and not re.match(r'^[A-Z]', next_line):
+                            # This is a continuation line with more bid numbers
+                            numbers_only = re.findall(r'\d+', next_line)
+                            if numbers_only:
+                                all_bid_numbers += " " + " ".join(numbers_only)
+                            j += 1
+                        else:
+                            break
+                    
+                    try:
+                        preferences = [int(p) for p in all_bid_numbers.split() if p.isdigit()]
+                        bid_items.append(BidItem(
+                            bid_position=seniority,
+                            employee_id=employee_id,
+                            preferences=preferences,
+                            employee_name=name
+                        ))
+                    except ValueError as e:
+                        logger.warning(f"Error parsing employee {name}: {e}")
+                    
+                    # Move to the next line after this employee's data
+                    i = j
+                else:
+                    i += 1
+            else:
+                i += 1
+    
     return bid_items
 
 def assign_lines(bid_items: List[BidItem]) -> List[BidResult]:
