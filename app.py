@@ -214,6 +214,7 @@ def parse_bid_data(data: str) -> List[BidItem]:
                     
                     try:
                         preferences = [int(p) for p in all_bid_numbers.split() if p.isdigit()]
+                        logger.info(f"Adding employee: {name}, seniority: {seniority}, preferences: {preferences[:5]}...")
                         bid_items.append(BidItem(
                             bid_position=seniority,
                             employee_id=employee_id,
@@ -236,6 +237,7 @@ def assign_lines(bid_items: List[BidItem]) -> List[BidResult]:
     """Assign lines based on seniority and preferences."""
     # Sort by bid position (lowest number = highest seniority)
     sorted_bids = sorted(bid_items, key=lambda x: x.bid_position)
+    logger.info(f"Processing {len(sorted_bids)} employees for line assignment")
     
     # Track assigned lines
     assigned_lines = set()
@@ -255,10 +257,12 @@ def assign_lines(bid_items: List[BidItem]) -> List[BidResult]:
                 assigned_lines.add(preference)
                 result.awarded_line = preference
                 assigned = True
+                logger.info(f"Assigned line {preference} to {bid.employee_name or bid.employee_id} (seniority {bid.bid_position})")
                 break
                 
         if not assigned:
             result.message = "No preferred lines available"
+            logger.info(f"No lines available for {bid.employee_name or bid.employee_id} (seniority {bid.bid_position})")
             
         results.append(result)
         
