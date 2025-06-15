@@ -136,9 +136,6 @@ def parse_bid_data(data: str) -> List[BidItem]:
     first_line = lines[0].strip() if lines else ""
     is_old_table_format = ("seniority" in first_line.lower() or "senority" in first_line.lower()) and ("crew" in first_line.lower() or "id" in first_line.lower())
     
-    # Check if this is the very old format (starts with "NAME Sen: NUMBER")
-    is_very_old_format = re.search(r'Sen:\s*(\d+)', first_line, re.IGNORECASE) is not None
-    
     if is_old_table_format:
         # Handle old table format (Seniority, Crew Id, Bids)
         # Skip the header line
@@ -155,7 +152,6 @@ def parse_bid_data(data: str) -> List[BidItem]:
             try:
                 seniority = int(parts[0])
                 employee_id = parts[1]
-                preferences = []
                 
                 # Parse bid numbers from remaining parts
                 bid_text = ' '.join(parts[2:])
@@ -170,51 +166,7 @@ def parse_bid_data(data: str) -> List[BidItem]:
                 logger.warning(f"Error parsing line {line_num}: {e}")
                 continue
     
-    elif is_very_old_format:
-        # Handle very old format with "NAME Sen: NUMBER"
-        current_employee, table_data = extract_current_employee(data)
-        
-        # Process the bid table
-        table_lines = table_data.strip().split('\n')
-        
-        # Skip header line if it exists (Sen ID Bids)
-        start_idx = 0
-        if table_lines and not table_lines[0].strip().isdigit() and any(keyword in table_lines[0].lower() for keyword in ['sen', 'id', 'bid']):
-            start_idx = 1
-        
-        # Process each line in the table
-        for line_num, line in enumerate(table_lines[start_idx:], start_idx + 1):
-            line = line.strip()
-            if not line:  # Skip empty lines
-                continue
-                
-            parts = line.split()
-            if len(parts) < 3:
-                logger.warning(f"Line {line_num} has insufficient data: {line}")
-                continue
-                
-            try:
-                bid_position = int(parts[0])
-                employee_id = parts[1]
-                preferences = [int(p) for p in parts[2:]]
-                
-                bid_items.append(BidItem(
-                    bid_position=bid_position,
-                    employee_id=employee_id,
-                    preferences=preferences
-                ))
-            except ValueError as e:
-                logger.warning(f"Error parsing line {line_num}: {e}")
-                continue
-        
-        # Add the current employee as the last item if present
-        if current_employee:
-            bid_items.append(BidItem(
-                bid_position=current_employee["seniority"],
-                employee_id=current_employee["employee_id"],
-                preferences=current_employee["preferences"],
-                employee_name=current_employee["name"]
-            ))
+
     
     else:
         # Handle new format - parse all employees from the structured data
