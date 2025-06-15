@@ -136,9 +136,7 @@ def parse_bid_data(data: str) -> List[BidItem]:
     first_line = lines[0].strip() if lines else ""
     is_old_table_format = ("seniority" in first_line.lower() or "senority" in first_line.lower()) and ("crew" in first_line.lower() or "id" in first_line.lower())
     
-    logger.info(f"First line: '{first_line}'")
-    logger.info(f"Is old table format: {is_old_table_format}")
-    logger.info(f"Total lines: {len(lines)}")
+
     
     if is_old_table_format:
         # Handle old table format (Seniority, Crew Id, Bids)
@@ -186,11 +184,9 @@ def parse_bid_data(data: str) -> List[BidItem]:
             # Check if this line is an employee entry
             # Pattern: NAME ID# SEN BASE EQP STA BID_NUMBERS
             if not line.startswith("      ") and re.match(r'^[A-Z]', line):
-                logger.info(f"Processing line: '{line}'")
                 # Pattern: NAME ID# SEN BASE EQP STA BID_NUMBERS
                 match = re.match(r'^([A-Z\s,]+?)\s+(\d{7})\s+(\d+)\s+([A-Z]{2,4})\s+([A-Z0-9]{2,4})\s+([A-Z]{3})\s+(.*)', line)
                 if match:
-                    logger.info(f"Match found: {match.groups()}")
                     name = match.group(1).strip()
                     employee_id = match.group(2)
                     seniority = int(match.group(3))
@@ -214,8 +210,6 @@ def parse_bid_data(data: str) -> List[BidItem]:
                     
                     try:
                         preferences = [int(p) for p in all_bid_numbers.split() if p.isdigit()]
-                        logger.info(f"Raw bid numbers: '{all_bid_numbers}'")
-                        logger.info(f"Adding employee: {name}, seniority: {seniority}, preferences: {preferences[:5]}...")
                         bid_items.append(BidItem(
                             bid_position=seniority,
                             employee_id=employee_id,
@@ -238,7 +232,7 @@ def assign_lines(bid_items: List[BidItem]) -> List[BidResult]:
     """Assign lines based on seniority and preferences."""
     # Sort by bid position (lowest number = highest seniority)
     sorted_bids = sorted(bid_items, key=lambda x: x.bid_position)
-    logger.info(f"Processing {len(sorted_bids)} employees for line assignment")
+
     
     # Track assigned lines
     assigned_lines = set()
@@ -258,12 +252,12 @@ def assign_lines(bid_items: List[BidItem]) -> List[BidResult]:
                 assigned_lines.add(preference)
                 result.awarded_line = preference
                 assigned = True
-                logger.info(f"Assigned line {preference} to {bid.employee_name or bid.employee_id} (seniority {bid.bid_position})")
+
                 break
                 
         if not assigned:
             result.message = "No preferred lines available"
-            logger.info(f"No lines available for {bid.employee_name or bid.employee_id} (seniority {bid.bid_position})")
+
             
         results.append(result)
         
