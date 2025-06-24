@@ -187,7 +187,8 @@ def parse_bid_data(data: str) -> List[BidItem]:
             # Pattern: NAME ID# SEN BASE EQP STA BID_NUMBERS
             if not line.startswith("      ") and re.match(r'^[A-Z]', line):
                 # Pattern: NAME ID# SEN BASE EQP STA BID_NUMBERS
-                match = re.match(r'^([A-Z\s,]+?)\s+(\d{7})\s+(\d+)\s+([A-Z]{2,4})\s+([A-Z0-9]{2,4})\s+([A-Z]{3})\s+(.*)', line)
+                # Updated to handle both CPT and F/O positions
+                match = re.match(r'^([A-Z\s,]+?)\s+(\d{7})\s+(\d+)\s+([A-Z]{2,4})\s+([A-Z0-9]{2,4})\s+([A-Z/]{2,3})\s+(.*)', line)
                 if match:
                     name = match.group(1).strip()
                     employee_id = match.group(2)
