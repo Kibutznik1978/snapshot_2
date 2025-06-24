@@ -49,6 +49,50 @@
     z-index: 1;
 }
 
+/* Mobile spacing for Results header and Download button */
+@media (max-width: 576px) {
+    .results-header {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 1rem;
+    }
+    
+    .results-header .card-title {
+        text-align: center;
+        margin-bottom: 0;
+    }
+    
+    .results-header .btn {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+}
+
+/* Tablet spacing adjustment */
+@media (min-width: 577px) and (max-width: 768px) {
+    .results-header {
+        gap: 1rem;
+    }
+}
+
+/* Extra small screens - stack elements vertically */
+@media (max-width: 480px) {
+    .results-header {
+        flex-direction: column !important;
+        gap: 1rem;
+    }
+    
+    .results-header .card-title {
+        text-align: center;
+        font-size: 1.25rem;
+    }
+    
+    .results-header .btn {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+}
+
 thead.sticky-top th {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     backdrop-filter: blur(10px);
