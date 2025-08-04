@@ -1,4 +1,48 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Theme management
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    const lightIcon = document.querySelector('.theme-icon-light');
+    const darkIcon = document.querySelector('.theme-icon-dark');
+    
+    // Get saved theme or default to system preference
+    const savedTheme = localStorage.getItem('theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const currentTheme = savedTheme || (systemDark ? 'dark' : 'light');
+    
+    // Apply initial theme
+    setTheme(currentTheme);
+    
+    // Theme toggle handler
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = html.getAttribute('data-bs-theme') || 'light';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        console.log('Theme toggle clicked:', currentTheme, '->', newTheme);
+        setTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) {
+            setTheme(e.matches ? 'dark' : 'light');
+        }
+    });
+    
+    function setTheme(theme) {
+        console.log('Setting theme to:', theme);
+        html.setAttribute('data-bs-theme', theme);
+        
+        if (theme === 'dark') {
+            lightIcon.classList.add('d-none');
+            darkIcon.classList.remove('d-none');
+        } else {
+            lightIcon.classList.remove('d-none');
+            darkIcon.classList.add('d-none');
+        }
+        
+        console.log('Theme set, data-bs-theme:', html.getAttribute('data-bs-theme'));
+    }
     // DOM Elements
     const bidForm = document.getElementById('bidForm');
     const bidData = document.getElementById('bidData');
