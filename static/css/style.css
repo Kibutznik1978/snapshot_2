@@ -1,32 +1,166 @@
-/* Mobile-first responsive design */
+/* Modern Design System - shadcn/ui light theme with enhanced contrast */
+:root {
+    /* Color palette */
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+    --primary: 220.9 39.3% 11%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.9 39.3% 11%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 220.9 39.3% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 224 71.4% 4.1%;
+    --radius: 0.75rem;
+    
+    /* Enhanced shadows for better contrast */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.08);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.12), 0 1px 2px -1px rgb(0 0 0 / 0.12);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.12), 0 2px 4px -2px rgb(0 0 0 / 0.12);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.12), 0 4px 6px -4px rgb(0 0 0 / 0.12);
+    
+    /* Animations */
+    --transition-all: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-colors: color 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modern card design */
 .card {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    border-radius: 0.75rem;
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-all);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
 }
 
 /* Touch-friendly bid data textarea */
+/* Modern form controls */
+.form-control {
+    display: flex;
+    width: 100%;
+    border-radius: var(--radius);
+    border: 1.5px solid hsl(var(--border));
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-size: 0.875rem;
+    transition: var(--transition-colors);
+    padding: 0.75rem 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.form-control:focus {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-color: hsl(var(--ring));
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+
+.form-control::placeholder {
+    color: hsl(var(--muted-foreground));
+}
+
 #bidData {
-    font-family: monospace;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     resize: vertical;
     min-height: 200px;
     font-size: 14px;
     line-height: 1.4;
-    padding: 1rem;
-    border-radius: 0.5rem;
+    background-color: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
 }
 
-/* Touch-friendly buttons */
+/* Modern button system */
 .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: var(--transition-colors);
+    focus-visible: outline-2 outline-offset-2;
     min-height: 44px;
     padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.btn:hover::before {
+    opacity: 1;
+}
+
+.btn-primary {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: 1px solid hsl(var(--primary));
+}
+
+.btn-primary:hover {
+    background-color: hsl(var(--primary) / 0.9);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-outline-secondary {
+    background-color: transparent;
+    color: hsl(var(--secondary-foreground));
+    border: 1px solid hsl(var(--border));
+}
+
+.btn-outline-secondary:hover {
+    background-color: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+    border: 1px solid hsl(var(--border));
+}
+
+.btn-secondary:hover {
+    background-color: hsl(var(--secondary) / 0.8);
+    transform: translateY(-1px);
 }
 
 .btn:active {
     transform: translateY(1px);
+}
+
+.btn:disabled {
+    pointer-events: none;
+    opacity: 0.5;
 }
 
 /* Animation for loading state */
@@ -34,12 +168,55 @@
     to {transform: rotate(360deg);}
 }
 
-/* Mobile-responsive table */
+/* Modern table design */
 .table-responsive {
     max-height: 60vh;
     overflow-y: auto;
-    border-radius: 0.5rem;
+    border-radius: var(--radius);
     -webkit-overflow-scrolling: touch;
+    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--card));
+    box-shadow: var(--shadow-sm);
+}
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: hsl(var(--muted) / 0.5);
+    --bs-table-hover-bg: hsl(var(--accent) / 0.5);
+    color: hsl(var(--foreground));
+    border-color: hsl(var(--border));
+}
+
+.table th {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--foreground));
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.025em;
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.table td {
+    border-bottom: 1px solid hsl(var(--border) / 0.5);
+    vertical-align: middle;
+}
+
+.table-primary {
+    --bs-table-bg: hsl(var(--primary) / 0.1);
+    --bs-table-striped-bg: hsl(var(--primary) / 0.15);
+    --bs-table-hover-bg: hsl(var(--primary) / 0.2);
+    border: 1px solid hsl(var(--primary) / 0.3);
+    position: relative;
+}
+
+.table-primary::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, hsl(var(--primary)), hsl(var(--primary) / 0.5));
 }
 
 /* Sticky header styles */
@@ -251,13 +428,97 @@ thead.sticky-top th {
     }
 }
 
+/* Global body styling */
+body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Status indicators with enhanced contrast */
+.text-success {
+    color: #15803d !important;
+    font-weight: 500;
+}
+
+.text-danger {
+    color: #b91c1c !important;
+    font-weight: 500;
+}
+
+.text-info {
+    color: #1d4ed8 !important;
+    font-weight: 500;
+}
+
+.text-muted {
+    color: hsl(var(--muted-foreground)) !important;
+}
+
+.text-secondary {
+    color: hsl(var(--muted-foreground)) !important;
+}
+
+/* Alert components */
+.alert {
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+}
+
+.alert-warning {
+    background-color: hsl(0 56% 46% / 0.08);
+    border-color: hsl(0 56% 46% / 0.25);
+    color: hsl(0 56% 35%);
+}
+
+.alert-danger {
+    background-color: hsl(var(--destructive) / 0.1);
+    border-color: hsl(var(--destructive) / 0.3);
+    color: hsl(var(--destructive-foreground));
+}
+
+/* Border utilities */
+.border-bottom {
+    border-bottom: 1px solid hsl(var(--border)) !important;
+}
+
+.border-secondary {
+    border-color: hsl(var(--border)) !important;
+}
+
+/* Loading spinner enhancement */
+.spinner-border-sm {
+    border-color: currentColor;
+    border-right-color: transparent;
+}
+
+/* Focus states */
+*:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+}
+
+/* Enhanced micro-interactions */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeIn 0.3s ease-out;
+}
+
 /* Dark mode support enhancement */
 @media (prefers-color-scheme: dark) {
-    .table-responsive {
-        border: 1px solid var(--bs-border-color);
-    }
-    
-    .card {
-        border: 1px solid var(--bs-border-color);
+    :root {
+        color-scheme: dark;
     }
 }

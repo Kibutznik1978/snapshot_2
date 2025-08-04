@@ -15,6 +15,12 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
 
+# Production configuration
+if os.environ.get("RENDER"):
+    app.config['DEBUG'] = False
+else:
+    app.config['DEBUG'] = True
+
 @dataclass
 class BidItem:
     bid_position: int  # This represents the seniority number
